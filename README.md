@@ -3,3 +3,6 @@
 Thème 2
 
 docker-compose up --build
+
+dockeur compose down
+dockeur compose up --build
