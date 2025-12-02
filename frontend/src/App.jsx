@@ -1,34 +1,37 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import LoginForm from './views/security/login-form';
+import Recipes from './views/Recipes';
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [user, setUser] = useState(null);
+  const [page, setPage] = useState('login'); // navigation ultra simple
+
+  function onLogin(loggedInUser) {
+    setUser(loggedInUser);
+    setPage('recipes'); // Redirige vers recettes after login
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div>
+        {/* Barre de navigation simple */}
+        <nav style={{ padding: '10px', background: '#f0f0f0', marginBottom: '20px' }}>
+            {!user ? (
+                <span>Veuillez vous connecter</span>
+            ) : (
+                <>
+                    <b>Bonjour {user.email}</b> | 
+                    <button onClick={() => setPage('recipes')}>Recettes</button> |
+                    <button onClick={() => setUser(null)}>Déconnexion</button>
+                </>
+            )}
+        </nav>
+
+        {/* Affichage conditionnel des pages */}
+        {!user && <LoginForm onLogin={onLogin} />}
+        
+        {user && page === 'recipes' && <Recipes />}
+    </div>
   )
 }
 

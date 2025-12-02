@@ -11,6 +11,7 @@ app.use(express.json());
 // then parse URL-encoded data and populate req.body
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use('/api/recipes', require('./routes/recipes'));
 
 function logger(req, res, next) {
   console.log("Request received:", req.method, req.url);

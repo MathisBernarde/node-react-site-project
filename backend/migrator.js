@@ -1,22 +1,20 @@
-const { getConnection } = require("./lib/db");
+const db = require('./lib/db');
+const User = require('./models/users')(db);
+const Recipe = require('./models/recipe')(db);
+const Ingredient = require('./models/ingredient')(db);
 
-getConnection()
-  .then(async (connection) => {
-    // Get all defined models
-    require("./models/users");
-    require("./models/category");
-    require("./models/labels");
-    return connection;
-  })
-  .then((connection) =>
-    connection.sync({
-      alter: true,
+User.hasMany(Recipe);
+Recipe.belongsTo(User);
+
+// recette = plusieurs ingrédients (et inversement)
+Recipe.belongsToMany(Ingredient, { through: 'RecipeIngredients' });
+Ingredient.belongsToMany(Recipe, { through: 'RecipeIngredients' });
+
+console.log('Syncing database...');
+db.sync({ alter: true })
+    .then(() => {
+        console.log('Database synced!');
     })
-  )
-  .then((connection) => connection.close())
-  .then(() => {
-    console.log("All models were synchronized successfully.");
-  })
-  .catch((error) => {
-    console.error("Unable to connect to the database:", error);
-  });
+    .catch(console.error);
+
+module.exports = { User, Recipe, Ingredient };
