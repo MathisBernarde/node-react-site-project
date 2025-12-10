@@ -1,7 +1,7 @@
-### ==============================================================================
-### PARTIE 1 : CRÉATION DES COMPTES (SETUP)
-### ==============================================================================
-### 1. Créer l'ADMIN (Le chef suprême)
+###--------------------------------
+### PARTIE 1 : Création des comptes
+###--------------------------------
+### 1/ Créer l'admin
 POST http://localhost:3000/users
 Content-Type: application/json
 
@@ -12,7 +12,7 @@ Content-Type: application/json
     "role": "ADMIN"
 }
 
-### 2. Créer un UTILISATEUR STANDARD (L'utilisateur honnête)
+### 2/ Créer un UTILISATEUR STANDARD
 POST http://localhost:3000/users
 Content-Type: application/json
 
@@ -23,7 +23,7 @@ Content-Type: application/json
     "role": "USER"
 }
 
-### 3. Créer un DEUXIÈME UTILISATEUR (Le voleur potentiel)
+### 3/ Créer un DEUXIÈME UTILISATEUR
 POST http://localhost:3000/users
 Content-Type: application/json
 
@@ -35,12 +35,11 @@ Content-Type: application/json
 }
 
 
-### ==============================================================================
-### PARTIE 2 : CONNEXION (RÉCUPÉRATION DES TOKENS)
-### ==============================================================================
+###------------------------------------------------
+### PARTIE 2 : Connexion et récupération des tokens
+###------------------------------------------------
 
-### A. Connexion ADMIN
-# 👉 Copiez le token reçu et mettez-le dans la variable @adminToken ci-dessous
+### 1/ Connexion admin
 POST http://localhost:3000/login
 Content-Type: application/json
 
@@ -49,8 +48,8 @@ Content-Type: application/json
     "password": "adminpass"
 }
 
-### B. Connexion UTILISATEUR NORMAL
-# 👉 Copiez le token reçu et mettez-le dans la variable @userToken ci-dessous
+### 2/ Connexion UTILISATEUR NORMAL
+
 POST http://localhost:3000/login
 Content-Type: application/json
 
@@ -59,8 +58,8 @@ Content-Type: application/json
     "password": "userpass"
 }
 
-### C. Connexion VOLEUR
-# 👉 Copiez le token reçu et mettez-le dans la variable @voleurToken ci-dessous
+### 3/ Connexion VOLEUR
+
 POST http://localhost:3000/login
 Content-Type: application/json
 
@@ -70,19 +69,19 @@ Content-Type: application/json
 }
 
 
-### ==============================================================================
-### ZONE DE VARIABLES (COLLEZ VOS TOKENS ICI)
-### ==============================================================================
+###----------------
+### Zone des Tokens
+###----------------
 @adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NjUzOTg3NjAsImV4cCI6MTc2NTQwMjM2MH0.nFvl5fmcNmtHC-LzzrVnkJ4mHttRYCBkuu5SCFlkR1g
 @userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTM5ODc4MSwiZXhwIjoxNzY1NDAyMzgxfQ.gg_aUkrgb4kmGSj0STfwt6z1fBichgmw3mVLQDEAdno
 @voleurToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTM5ODc5MywiZXhwIjoxNzY1NDAyMzkzfQ.uX5xt13E9OJVyFKqSwiiYOkHQboeFJN956NnCWXN1eE
 
 
-### ==============================================================================
+###----------------------------------------------------------------
 ### PARTIE 3 : FONCTIONNALITÉS "SHOPPING LIST" (Utilisateur Normal)
-### ==============================================================================
+###----------------------------------------------------------------
 
-### 1. Créer une liste de courses (En tant qu'utilisateur normal)
+### 1/ Créer une liste de courses (En tant qu'utilisateur normal)
 POST http://localhost:3000/shopping-lists
 Content-Type: application/json
 Authorization: Bearer {{userToken}}
@@ -92,12 +91,12 @@ Authorization: Bearer {{userToken}}
     "status": "OPEN"
 }
 
-### 2. Voir MES listes (Doit afficher la liste "Pizza")
+### 2/ Voir mes listes (Doit afficher la liste "Pizza")
 GET http://localhost:3000/shopping-lists
 Authorization: Bearer {{userToken}}
 
-### 3. Modifier la liste (Changer titre ou statut)
-# ⚠️ Remplacez '1' par l'ID réel de la liste si besoin
+### 3/ Modifier la liste
+# Remplacez '1' par l'ID réel de la liste si besoin
 PATCH http://localhost:3000/shopping-lists/1
 Content-Type: application/json
 Authorization: Bearer {{userToken}}
@@ -107,22 +106,21 @@ Authorization: Bearer {{userToken}}
     "title": "Pizza Party (Fini)"
 }
 
-### 4. Supprimer la liste
+### 4/ Supprimer la liste
 DELETE http://localhost:3000/shopping-lists/1
 Authorization: Bearer {{userToken}}
 
+###-----------------------------
+### PARTIE 4 : Tests de sécurité
+###-----------------------------
 
-### ==============================================================================
-### PARTIE 4 : TESTS DE SÉCURITÉ (LE CRASH TEST)
-### ==============================================================================
-
-### 1. Le Voleur essaie de voir les listes de l'Utilisateur Normal
-# 👉 Attendu : 200 OK mais un tableau VIDE [] (Il ne doit pas voir "Pizza")
+### 1/ Le Voleur essaie de voir les listes de l'Utilisateur Normal
+#Attendu : 200 OK mais un tableau VIDE []
 GET http://localhost:3000/shopping-lists
 Authorization: Bearer {{voleurToken}}
 
-### 2. Le Voleur essaie de modifier la liste n°1 (qui ne lui appartient pas)
-# 👉 Attendu : 403 Forbidden ou 404 Not Found
+### 2/ Le Voleur essaie de modifier la liste n°1 qui ne lui appartient pas
+#Attendu : 403 Forbidden ou 404 Not Found
 PATCH http://localhost:3000/shopping-lists/5
 Content-Type: application/json
 Authorization: Bearer {{voleurToken}}
@@ -131,16 +129,14 @@ Authorization: Bearer {{voleurToken}}
     "title": "J'ai piraté ta liste"
 }
 
+###-------------------------------------------------------
+### PARTIE 5 : ADMINISTRATION utilisateur admin uniquement
+###-------------------------------------------------------
 
-### ==============================================================================
-### PARTIE 5 : ADMINISTRATION (ADMIN SEULEMENT)
-### ==============================================================================
-
-### 1. Voir TOUS les utilisateurs inscrits
+### 1/ Voir tous les utilisateurs inscrits
 GET http://localhost:3000/users
 Authorization: Bearer {{adminToken}}
 
-### 2. Voir TOUTES les listes de courses de TOUT LE MONDE
-# L'admin doit pouvoir voir la liste de "UtilisateurNormal" même si ce n'est pas la sienne
+### 1/ Admin qui voit toutes les listes de courses de tout le monde
 GET http://localhost:3000/shopping-lists
 Authorization: Bearer {{adminToken}}
