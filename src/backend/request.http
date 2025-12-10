@@ -1,175 +1,146 @@
-###
-
-GET http://localhost:3000/?activated=true
-
-###
-POST http://localhost:3000
-Content-Type: application/json
-
-{
-    "username": "testuser",
-    "email": "testuser@example.com"
-}
-
-###
-POST http://localhost:3000
-Content-Type: application/x-www-form-urlencoded
-
-username=testuser&email=testuser@example.com
-
-###
-POST http://localhost:3000
-Content-Type: application/xml
-
-<user>
-    <username>testuser</username>
-    <email>testuser@example.com</email>
-</user>
-
-###
-GET http://localhost:3000/users
-
-### => RETURN 422
+### ==============================================================================
+### PARTIE 1 : CRÉATION DES COMPTES (SETUP)
+### ==============================================================================
+### 1. Créer l'ADMIN (Le chef suprême)
 POST http://localhost:3000/users
 Content-Type: application/json
 
 {
-    "username": "newuser",
-    "email": "newuser@example.com"
-}
-
-### => 
-POST http://localhost:3000/users
-Content-Type: application/json
-
-{
-    "login": "newuse3",
-    "email": "newuser3@example.com",
-    "password": "securepassword"
-}
-### =>
-PATCH http://localhost:3000/users/1
-Content-Type: application/json
-
-{
-    "login": "really hashed password"
-}
-###
-GET http://localhost:3000/categories
-
-### => RETURN 422
-POST http://localhost:3000/categories
-Content-Type: application/json
-
-{
-    "categoriename": "newcategorie",
-    "email": "newcategorie@example.com"
-}
-
-### => 
-POST http://localhost:3000/categories
-Content-Type: application/json
-
-{
-    "title": "newuse1"
-}
-### => 
-PATCH http://localhost:3000/categories/2
-Content-Type: application/json
-
-{
-    "title": "category updated 5",
-    "description": "category updated 5"
-}
-### => 
-POST http://localhost:3000/categories
-Content-Type: application/json
-
-{
-    "title": "newuse1",
-    "description": "This is a new category"
-}
-###
-GET http://localhost:3000/labels
-
-### => RETURN 422
-POST http://localhost:3000/labels
-Content-Type: application/json
-
-{
-    "categoriename": "newcategorie",
-    "email": "newcategorie@example.com"
-}
-
-### => 
-POST http://localhost:3000/labels
-Content-Type: application/json
-
-{
-    "title": "newuse1"
-}
-### => 
-POST http://localhost:3000/labels
-Content-Type: application/json
-
-{
-    "title": "newuse1",
-    "description": "This is a new category"
-}
-
-
-### 
-POST http://localhost:3000/login
-Content-Type: application/json
-
-{
-    "email": "newuser3@example.com",
-    "password": "securepassword"
-}
-
-### ------------------------------------------------------------------------
-### ETAPE 1 : Créer un compte (Inscription)
-### Cette route est publique (pas besoin de token)
-### ------------------------------------------------------------------------
-POST http://localhost:3000/users
-Content-Type: application/json
-
-{
-    "login": "Théo",
-    "email": "caca@gmail.com",
-    "password": "caca",
+    "login": "AdminChef",
+    "email": "admin@test.com",
+    "password": "adminpass",
     "role": "ADMIN"
 }
 
-### ------------------------------------------------------------------------
-### ETAPE 2 : Se connecter (Login)
-### Cette route sert à récupérer le TOKEN
-### ------------------------------------------------------------------------
+### 2. Créer un UTILISATEUR STANDARD (L'utilisateur honnête)
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+    "login": "Utilisateur",
+    "email": "user@test.com",
+    "password": "userpass",
+    "role": "USER"
+}
+
+### 3. Créer un DEUXIÈME UTILISATEUR (Le voleur potentiel)
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+    "login": "Voleur",
+    "email": "voleur@test.com",
+    "password": "badpass",
+    "role": "USER"
+}
+
+
+### ==============================================================================
+### PARTIE 2 : CONNEXION (RÉCUPÉRATION DES TOKENS)
+### ==============================================================================
+
+### A. Connexion ADMIN
+# 👉 Copiez le token reçu et mettez-le dans la variable @adminToken ci-dessous
 POST http://localhost:3000/login
 Content-Type: application/json
 
 {
-    "email": "caca@gmail.com",
-    "password": "caca"
+    "email": "admin@test.com",
+    "password": "adminpass"
 }
 
-### ------------------------------------------------------------------------
-### ETAPE 3 : Utiliser l'API (Avec le Token)
-### ⚠️ Copiez le token reçu à l'étape 2 et collez-le ci-dessous après "Bearer"
-### ------------------------------------------------------------------------
-
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMywicm9sZSI6IkFETUlOIiwiaWF0IjoxNzY1MzgxOTI2LCJleHAiOjE3NjUzODU1MjZ9.vihqPm9WTlskycyk9_8m9KmjPbf_qRRegnPJpDMXGKU
-
-### Voir mes listes de courses
-GET http://localhost:3000/shopping-lists
-Authorization: Bearer {{token}}
-
-### Créer une liste de courses
-POST http://localhost:3000/shopping-lists
+### B. Connexion UTILISATEUR NORMAL
+# 👉 Copiez le token reçu et mettez-le dans la variable @userToken ci-dessous
+POST http://localhost:3000/login
 Content-Type: application/json
-Authorization: Bearer {{token}}
 
 {
-    "title": "cacaflette",
+    "email": "user@test.com",
+    "password": "userpass"
+}
+
+### C. Connexion VOLEUR
+# 👉 Copiez le token reçu et mettez-le dans la variable @voleurToken ci-dessous
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+    "email": "voleur@test.com",
+    "password": "badpass"
+}
+
+
+### ==============================================================================
+### ZONE DE VARIABLES (COLLEZ VOS TOKENS ICI)
+### ==============================================================================
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NjUzOTg3NjAsImV4cCI6MTc2NTQwMjM2MH0.nFvl5fmcNmtHC-LzzrVnkJ4mHttRYCBkuu5SCFlkR1g
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTM5ODc4MSwiZXhwIjoxNzY1NDAyMzgxfQ.gg_aUkrgb4kmGSj0STfwt6z1fBichgmw3mVLQDEAdno
+@voleurToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTM5ODc5MywiZXhwIjoxNzY1NDAyMzkzfQ.uX5xt13E9OJVyFKqSwiiYOkHQboeFJN956NnCWXN1eE
+
+
+### ==============================================================================
+### PARTIE 3 : FONCTIONNALITÉS "SHOPPING LIST" (Utilisateur Normal)
+### ==============================================================================
+
+### 1. Créer une liste de courses (En tant qu'utilisateur normal)
+POST http://localhost:3000/shopping-lists
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+    "title": "Ingrédients pour la tartiflette",
     "status": "OPEN"
 }
+
+### 2. Voir MES listes (Doit afficher la liste "Pizza")
+GET http://localhost:3000/shopping-lists
+Authorization: Bearer {{userToken}}
+
+### 3. Modifier la liste (Changer titre ou statut)
+# ⚠️ Remplacez '1' par l'ID réel de la liste si besoin
+PATCH http://localhost:3000/shopping-lists/1
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+    "status": "COMPLETED",
+    "title": "Pizza Party (Fini)"
+}
+
+### 4. Supprimer la liste
+DELETE http://localhost:3000/shopping-lists/1
+Authorization: Bearer {{userToken}}
+
+
+### ==============================================================================
+### PARTIE 4 : TESTS DE SÉCURITÉ (LE CRASH TEST)
+### ==============================================================================
+
+### 1. Le Voleur essaie de voir les listes de l'Utilisateur Normal
+# 👉 Attendu : 200 OK mais un tableau VIDE [] (Il ne doit pas voir "Pizza")
+GET http://localhost:3000/shopping-lists
+Authorization: Bearer {{voleurToken}}
+
+### 2. Le Voleur essaie de modifier la liste n°1 (qui ne lui appartient pas)
+# 👉 Attendu : 403 Forbidden ou 404 Not Found
+PATCH http://localhost:3000/shopping-lists/5
+Content-Type: application/json
+Authorization: Bearer {{voleurToken}}
+
+{
+    "title": "J'ai piraté ta liste"
+}
+
+
+### ==============================================================================
+### PARTIE 5 : ADMINISTRATION (ADMIN SEULEMENT)
+### ==============================================================================
+
+### 1. Voir TOUS les utilisateurs inscrits
+GET http://localhost:3000/users
+Authorization: Bearer {{adminToken}}
+
+### 2. Voir TOUTES les listes de courses de TOUT LE MONDE
+# L'admin doit pouvoir voir la liste de "UtilisateurNormal" même si ce n'est pas la sienne
+GET http://localhost:3000/shopping-lists
+Authorization: Bearer {{adminToken}}

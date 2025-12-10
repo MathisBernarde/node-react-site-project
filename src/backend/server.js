@@ -11,6 +11,12 @@ app.get("/", (req, res) => {
 });
 getConnection().then(() => {
     console.log("Database connected via Server");
+    const User = require("./models/users");
+    const ShoppingList = require("./models/shoppingList");
+
+    User.hasMany(ShoppingList, { foreignKey: 'userId' });
+    ShoppingList.belongsTo(User, { foreignKey: 'userId' });
+    
     const userRouter = require("./routes/users");
     const securityRouter = require("./routes/security");
     const shoppingListRouter = require("./routes/shoppingList");
