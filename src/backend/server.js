@@ -3,62 +3,25 @@ const cors = require("cors");
 const { getConnection } = require("./lib/db");
 
 const app = express();
-
-// Check content-type for POST/PUT/PATCH if application/json
-// then parse JSON data and populate req.body
-app.use(express.json());
-// Check content-type for POST/PUT/PATCH if application/x-www-form-urlencoded
-// then parse URL-encoded data and populate req.body
-app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use(express.json());
 
-function logger(req, res, next) {
-  console.log("Request received:", req.method, req.url);
-  next();
-}
-app.use(logger);
-
-app.use((req, res, next) => {
-  if (["POST", "PUT", "PATCH"].includes(req.method)) {
-    if (req.body === undefined) {
-      return res.sendStatus(400);
-    }
-  }
-  next();
+app.get("/", (req, res) => {
+    res.send("Bonjour ! L'API Recettes est en ligne et fonctionnelle.");
 });
-
-app.get(
-  "/",
-  // (request, response, next) => {},
-  // (request, response, next) => {},
-  // (request, response, next) => {},
-  (request, response, next) => {
-    const queryParams = request.query;
-    console.log("Query params:", queryParams);
-    response.send(
-      "Hello from Express! Filtres : " + JSON.stringify(queryParams)
-    );
-  }
-);
-
-app.post("/", (request, response, next) => {
-  const body = request.body;
-  console.log("Body:", body);
-  response.send("POST request received! Body: " + JSON.stringify(body));
-});
-
 getConnection().then(() => {
-  const userRouter = require("./routes/users");
-  const labelRouter = require("./routes/labels");
-  const categoryRouter = require("./routes/categories");
-  const securityRouter = require("./routes/security");
+    console.log("Database connected via Server");
+    const userRouter = require("./routes/users");
+    const securityRouter = require("./routes/security");
+    const shoppingListRouter = require("./routes/shoppingList");
 
-  app.use(userRouter);
-  app.use(labelRouter);
-  app.use(categoryRouter);
-  app.use(securityRouter);
+    app.use(userRouter);
+    app.use(securityRouter);
+    app.use(shoppingListRouter);
+    app.listen(3000, () => {
+        console.log("Server listening on port 3000");
+    });
 
-  app.listen(3000, () => {
-    console.log("Server listening on port http://localhost:3000");
-  });
+}).catch(err => {
+    console.error("Failed to start server:", err);
 });

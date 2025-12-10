@@ -126,3 +126,50 @@ Content-Type: application/json
     "email": "newuser3@example.com",
     "password": "securepassword"
 }
+
+### ------------------------------------------------------------------------
+### ETAPE 1 : Créer un compte (Inscription)
+### Cette route est publique (pas besoin de token)
+### ------------------------------------------------------------------------
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+    "login": "Théo",
+    "email": "caca@gmail.com",
+    "password": "caca",
+    "role": "ADMIN"
+}
+
+### ------------------------------------------------------------------------
+### ETAPE 2 : Se connecter (Login)
+### Cette route sert à récupérer le TOKEN
+### ------------------------------------------------------------------------
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+    "email": "caca@gmail.com",
+    "password": "caca"
+}
+
+### ------------------------------------------------------------------------
+### ETAPE 3 : Utiliser l'API (Avec le Token)
+### ⚠️ Copiez le token reçu à l'étape 2 et collez-le ci-dessous après "Bearer"
+### ------------------------------------------------------------------------
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMywicm9sZSI6IkFETUlOIiwiaWF0IjoxNzY1MzgxOTI2LCJleHAiOjE3NjUzODU1MjZ9.vihqPm9WTlskycyk9_8m9KmjPbf_qRRegnPJpDMXGKU
+
+### Voir mes listes de courses
+GET http://localhost:3000/shopping-lists
+Authorization: Bearer {{token}}
+
+### Créer une liste de courses
+POST http://localhost:3000/shopping-lists
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "title": "cacaflette",
+    "status": "OPEN"
+}

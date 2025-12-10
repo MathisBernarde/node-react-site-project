@@ -1,6 +1,6 @@
 const { DataTypes, Model } = require("sequelize");
-const { connection } = require("../lib/db");
-const bcrypt = require("bcrypt");
+const db = require("../lib/db");
+const bcrypt = require("bcryptjs");
 
 class User extends Model {}
 
@@ -41,7 +41,7 @@ User.init(
     },
   },
   {
-    sequelize: connection,
+    sequelize: db.connection,
     tableName: "user_account",
     underscored: true,
   }
