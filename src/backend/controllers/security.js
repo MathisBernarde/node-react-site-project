@@ -1,32 +1,44 @@
 const User = require("../models/users");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs"); // Vérifiez bien que c'est bcryptjs ici
 const jwt = require("jsonwebtoken");
 
 module.exports = {
-  login: async (req, res, next) => {
+  login: async (req, res) => {
     const { email, password } = req.body;
+    console.log("Tentative de login pour :", email); 
 
-    const user = await User.findOne({
-      where: {
-        email,
-      },
-    });
+    try {
+        const user = await User.findOne({ where: { email } });
 
-    if (!user) {
-      return res.sendStatus(401);
+        if (!user) {
+            console.log("Utilisateur INCONNU en base de données");
+            return res.sendStatus(401);
+        }
+
+        console.log("Utilisateur trouvé. Hash en base :", user.password);
+        console.log("Mot de passe envoyé :", password);
+
+        // Comparaison
+        const isValid = await bcrypt.compare(password, user.password);
+
+        if (!isValid) {
+            console.log("Mot de passe INCORRECT (bcrypt.compare a renvoyé false)");
+            return res.sendStatus(401);
+        }
+
+        console.log("Mot de passe VALIDE. Génération du token...");
+        
+        // Génération du token
+        const token = jwt.sign(
+            { user_id: user.id, role: user.role, name: user.name }, // Payload
+            process.env.JWT_SECRET, // Secret
+            { expiresIn: '1h' }
+        );
+
+        res.json({ token });
+    } catch (error) {
+        console.error("Erreur critique dans login :", error);
+        res.status(500).json({ error: error.message });
     }
-
-    if (!(await bcrypt.compare(password, user.password))) {
-      return res.sendStatus(401);
-    }
-
-    return res.json({
-      token: jwt.sign(
-        {
-          user_id: user.id,
-        },
-        process.env.JWT_SECRET ?? "MYStrongSecret"
-      ),
-    });
   },
 };

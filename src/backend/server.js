@@ -3,32 +3,31 @@ const cors = require("cors");
 const { getConnection } = require("./lib/db");
 
 const app = express();
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-
-app.use((req, res, next) => {
-  console.log("Request received:", req.method, req.url);
-  next();
-});
+app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("API Recettes est en ligne !");
+    res.send("Bonjour ! L'API Recettes est en ligne et fonctionnelle.");
 });
-
 getConnection().then(() => {
-  const userRouter = require("./routes/users");
-  const securityRouter = require("./routes/security");
-  const recipeRouter = require("./routes/recipes");
+    console.log("Database connected via Server");
+    const User = require("./models/users");
+    const ShoppingList = require("./models/shoppingList");
 
-  app.use(userRouter);
-  app.use(securityRouter);
-  app.use(recipeRouter);
+    User.hasMany(ShoppingList, { foreignKey: 'userId' });
+    ShoppingList.belongsTo(User, { foreignKey: 'userId' });
+    
+    const userRouter = require("./routes/users");
+    const securityRouter = require("./routes/security");
+    const shoppingListRouter = require("./routes/shoppingList");
 
-  app.listen(3000, () => {
-    console.log("Server listening on http://localhost:3000");
-  });
+    app.use(userRouter);
+    app.use(securityRouter);
+    app.use(shoppingListRouter);
+    app.listen(3000, () => {
+        console.log("Server listening on port 3000");
+    });
+
 }).catch(err => {
-  console.error("Erreur de connexion BDD:", err);
+    console.error("Failed to start server:", err);
 });
