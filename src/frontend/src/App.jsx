@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
@@ -6,82 +7,90 @@ import Button from "./components/Button";
 import RegisterForm from "./views/security/register-form";
 import LoginForm from "./views/security/login-form";
 import CategoryList from "./views/categories";
+import RecipesList from "./views/recipes/index";
+import RecipeForm from "./views/recipes/form";
 
 function App() {
-  const [count, setCount] = useState(0);
-  const token = localStorage.getItem("token");
-  let userDecoded = null;
-  if (token) {
-    const [, payloadEncoded] = token.split(".");
-    userDecoded = JSON.parse(atob(payloadEncoded));
-  }
-  const [user, setUser] = useState(userDecoded);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const [, payloadEncoded] = token.split(".");
+        const userDecoded = JSON.parse(atob(payloadEncoded));
+        setUser(userDecoded);
+      } catch (e) {
+        console.error("Token invalide", e);
+        localStorage.removeItem("token");
+      }
+    }
+  }, []);
 
   function handleLogout() {
     localStorage.removeItem("token");
     setUser(null);
+    window.location.href = "/"; // accueil
   }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <BrowserRouter>
+      <div className="App">
+        {/* NAVBAR */}
+        <nav style={{ padding: "20px", borderBottom: "1px solid #ccc", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <Link to="/" style={{ marginRight: "15px", fontWeight: "bold" }}>Accueil</Link>
+            {user && (
+              <>
+                <Link to="/categories" style={{ marginRight: "15px" }}>Catégories</Link>
+                <Link to="/recipes" style={{ marginRight: "15px" }}>Recettes</Link>
+              </>
+            )}
+          </div>
+          <div>
+            {user ? (
+              <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                Bonjour, {user.username || user.email}
+                <Button variant="delete" title="Déconnexion" onClick={handleLogout} />
+              </span>
+            ) : (
+              <Link to="/login">Se connecter</Link>
+            )}
+          </div>
+        </nav>
+
+        {/* LOGOS */}
+        <div style={{ textAlign: "center" }}>
+          <a href="https://vite.dev" target="_blank">
+            <img src={viteLogo} className="logo" alt="Vite logo" />
+          </a>
+          <a href="https://react.dev" target="_blank">
+            <img src={reactLogo} className="logo react" alt="React logo" />
+          </a>
+        </div>
+
+        {/* GESTION DES ROUTES */}
+        <Routes>
+          {/* Route d'accueil */}
+          <Route path="/" element={
+            <div style={{ textAlign: "center" }}>
+              <h1>Bienvenue sur l'App Recettes</h1>
+              {!user && <p>Connectez-vous pour gérer vos recettes !</p>}
+            </div>
+          } />
+
+          {/* Routes Auth */}
+          <Route path="/login" element={!user ? <LoginForm setUser={setUser} /> : <Navigate to="/recipes" />} />
+          <Route path="/register" element={!user ? <RegisterForm /> : <Navigate to="/recipes" />} />
+
+          {/* Routes Catégories */}
+          <Route path="/categories" element={user ? <CategoryList /> : <Navigate to="/login" />} />
+          <Route path="/recipes" element={user ? <RecipesList /> : <Navigate to="/login" />} />
+          <Route path="/recipes/new" element={user ? <RecipeForm /> : <Navigate to="/login" />} />
+          <Route path="/recipes/:id/edit" element={user ? <RecipeForm /> : <Navigate to="/login" />} />
+        </Routes>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <Button
-          title={`count is ${count}`}
-          onClick={() => setCount((count) => count + 1)}
-        />
-        <Button title="Click Me" onClick={() => console.log("Click Me")} />
-        <Button title="Click 2" onClick={() => alert("Click 2")} />
-        <Button
-          title="Supprimer"
-          style={{
-            backgroundColor: "red",
-          }}
-          onClick={() => prompt("Supprimer cette ressource ?")}
-        />
-        <Button
-          title="Supprimer"
-          variant="delete"
-          onClick={() => prompt("Supprimer cette ressource ?")}
-        />
-        <Button title="Disabled" disabled />
-        <Button title="Rounded" variant="icon" />
-        <Button component="a" title="Go to google" href="https://google.fr" />
-        <p>
-          {user === null && (
-            <>
-              <h2>Register</h2>
-              <RegisterForm />
-              <h2>Login</h2>
-              <LoginForm setUser={setUser} />
-            </>
-          )}
-          {user && (
-            <>
-              <h2>Connected as {user.user_id}</h2>
-              <Button
-                variant="delete"
-                title="se déconnecter"
-                onClick={handleLogout}
-              />
-              <CategoryList />
-            </>
-          )}
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </BrowserRouter>
   );
 }
 
