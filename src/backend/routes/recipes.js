@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const RecipeController = require("../controllers/recipes");
-const checkAuth = require("../middlewares/check-auth");
+const checkAuth = require("../middlewares/checkAuth");
 
 const router = Router();
 

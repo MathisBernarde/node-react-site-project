@@ -1,16 +1,18 @@
-const DB = {
-  connection: null,
+const { Sequelize } = require("sequelize");
+const connection = new Sequelize(process.env.DATABASE_URL, {
+  logging: false,
+});
+
+module.exports = {
+  connection,
   getConnection: async () => {
-    if (DB.connection) return DB.connection;
-    const { Sequelize } = require("sequelize");
-
-    const connection = new Sequelize(process.env.DATABASE_URL);
-
-    await connection.authenticate();
-    console.log("Database connected");
-    DB.connection = connection;
-    return connection;
+    try {
+      await connection.authenticate();
+      console.log("Database connected successfully");
+      return connection;
+    } catch (error) {
+      console.error("Unable to connect to the database:", error);
+      throw error;
+    }
   },
 };
-
-module.exports = DB;

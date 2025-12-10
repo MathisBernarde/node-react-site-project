@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const CategoryController = require("../controllers/categories");
-const checkAuth = require("../middlewares/check-auth");
+const checkAuth = require("../middlewares/checkAuth");
 const router = Router();
 
 router.get("/categories", checkAuth, CategoryController.cget);
