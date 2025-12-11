@@ -1,87 +1,77 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { useState, useEffect } from "react";
 import "./App.css";
 import Button from "./components/Button";
 import RegisterForm from "./views/security/register-form";
 import LoginForm from "./views/security/login-form";
-import CategoryList from "./views/categories";
+import ShoppingList from "./views/ShoppingList";
 
 function App() {
-  const [count, setCount] = useState(0);
-  const token = localStorage.getItem("token");
-  let userDecoded = null;
-  if (token) {
-    const [, payloadEncoded] = token.split(".");
-    userDecoded = JSON.parse(atob(payloadEncoded));
-  }
-  const [user, setUser] = useState(userDecoded);
+  const [user, setUser] = useState(null);
 
-  function handleLogout() {
+  // 1. Au chargement : On vérifie si on est déjà connecté
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      decodeAndSetUser(token);
+    }
+  }, []);
+
+  // Fonction pour décoder le token (partie payload)
+  const decodeAndSetUser = (token) => {
+    try {
+      const [, payloadEncoded] = token.split(".");
+      const payload = JSON.parse(atob(payloadEncoded));
+      setUser(payload);
+    } catch (e) {
+      console.error("Token invalide", e);
+      localStorage.removeItem("token");
+    }
+  };
+
+  // 2. Fonction appelée QUAND on se connecte via le formulaire
+  const handleLoginSuccess = (token) => {
+    localStorage.setItem("token", token); // On sauvegarde
+    decodeAndSetUser(token); // On met à jour l'état User pour changer l'écran
+  };
+
+  const handleLogout = () => {
     localStorage.removeItem("token");
     setUser(null);
-  }
+    window.location.reload();
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <Button
-          title={`count is ${count}`}
-          onClick={() => setCount((count) => count + 1)}
-        />
-        <Button title="Click Me" onClick={() => console.log("Click Me")} />
-        <Button title="Click 2" onClick={() => alert("Click 2")} />
-        <Button
-          title="Supprimer"
-          style={{
-            backgroundColor: "red",
-          }}
-          onClick={() => prompt("Supprimer cette ressource ?")}
-        />
-        <Button
-          title="Supprimer"
-          variant="delete"
-          onClick={() => prompt("Supprimer cette ressource ?")}
-        />
-        <Button title="Disabled" disabled />
-        <Button title="Rounded" variant="icon" />
-        <Button component="a" title="Go to google" href="https://google.fr" />
-        <p>
-          {user === null && (
-            <>
-              <h2>Register</h2>
-              <RegisterForm />
-              <h2>Login</h2>
-              <LoginForm setUser={setUser} />
-            </>
-          )}
-          {user && (
-            <>
-              <h2>Connected as {user.user_id}</h2>
-              <Button
-                variant="delete"
-                title="se déconnecter"
-                onClick={handleLogout}
-              />
-              <CategoryList />
-            </>
-          )}
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="app-container" style={{ padding: '20px' }}>
+      {!user ? (
+        // --- ÉCRAN NON CONNECTÉ ---
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '50px' }}>
+          <div>
+            <h2>Connexion</h2>
+            {/* On passe la fonction handleLoginSuccess au formulaire */}
+            <LoginForm onLogin={handleLoginSuccess} />
+          </div>
+          <div style={{ borderLeft: '1px solid #ccc', paddingLeft: '50px' }}>
+            <h2>Inscription</h2>
+            <RegisterForm />
+          </div>
+        </div>
+      ) : (
+        // --- ÉCRAN CONNECTÉ ---
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h1>Bonjour {user.username || user.login || "Chef"} !</h1>
+            <Button onClick={handleLogout} style={{ background: 'red', color: 'white' }}>
+                Se déconnecter
+            </Button>
+          </div>
+          
+          <hr />
+          
+          {/* Tes composants ici */}
+          <ShoppingList />
+        </div>
+      )}
+    </div>
   );
 }
 

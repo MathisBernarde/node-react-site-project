@@ -1,19 +1,15 @@
-const API_URL = "http://localhost:3000";
+import axios from "axios";
 
-export default function api(pathOrEndpoint, options = {}) {
-  let defaultHeaders = {
-    "Content-Type": "application/json",
-  };
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
+});
+
+api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
-    defaultHeaders["Authorization"] = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  options = {
-    ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
-  };
-  return fetch(`${API_URL}${pathOrEndpoint}`, options);
-}
+  return config;
+});
+
+export default api;

@@ -1,15 +1,23 @@
 const ShoppingList = require("../models/shoppingList");
+const User = require("../models/users");
 
 module.exports = {
   cget: async (req, res, next) => {
     try {
-      const where = {};
+      const options = {
+        include: [{ 
+            model: User, 
+            attributes: ["id", "login", "email"]
+        }] 
+      };
       if (req.user.role !== 'ADMIN') {
-        where.userId = req.user.id;
+        options.where = { userId: req.user.id };
       }
-      const lists = await ShoppingList.findAll({ where });
+      const lists = await ShoppingList.findAll(options);
       res.json(lists);
-    } catch (error) { next(error); }
+    } catch (e) {
+      next(e);
+    }
   },
   create: async (req, res, next) => {
     try {

@@ -72,9 +72,9 @@ Content-Type: application/json
 ###----------------
 ### Zone des Tokens
 ###----------------
-@adminToken - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NjU0NjA4OTMsImV4cCI6MTc2NTQ2NDQ5M30.KV9fovsSmZILCGCiA3DWTttbRwz2hUMBLXa9PtUeUxM
-@userToken - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTQ2MDkwNSwiZXhwIjoxNzY1NDY0NTA1fQ.OOktU7fMETsIU9pWbsPNOY4ZI5gsEseekgnN-SGFKps
-@voleurToken - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTQ2MDkxMywiZXhwIjoxNzY1NDY0NTEzfQ.oS88lB0rFpz5rPEI6qIvuxOzxhVNmOMgCsywO4lUJU4
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NjU0NjI5MjcsImV4cCI6MTc2NTQ2NjUyN30.tENWpKC7Up_x4DLvyCCd9zdJHL0WKz4cL1pOutUlggs
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTQ2Mjk0MiwiZXhwIjoxNzY1NDY2NTQyfQ.sZODrMsKeEKlWUXEvM8SUAdaezDuRVeHT1Y5rpm3AQg
+@voleurToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTQ2Mjk1NCwiZXhwIjoxNzY1NDY2NTU0fQ.XjxLxRhsg52i9jdURh3RKjSat3ncurLPMo4v-kFjwRI
 
 
 ###----------------------------------------------------------------
