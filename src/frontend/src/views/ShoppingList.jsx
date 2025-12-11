@@ -1,38 +1,30 @@
 import { useState, useEffect } from "react";
 import ShoppingListService from "../services/shopping-list";
-import UserService from "../services/user-service"; // ⚠️ Assurez-vous d'avoir créé ce fichier !
+import UserService from "../services/user-service";
 
 export default function ShoppingList() {
   const [lists, setLists] = useState([]);
-  const [users, setUsers] = useState([]); // État pour stocker les utilisateurs (Admin)
+  const [users, setUsers] = useState([]);
   const [newTitle, setNewTitle] = useState("");
   const [error, setError] = useState(null);
-
-  // --- 1. LOGIQUE ADMIN : Qui suis-je ? ---
   const token = localStorage.getItem("token");
   let currentUser = null;
   if (token) {
     try {
-      // On décode le payload du token JWT pour lire le rôle
       currentUser = JSON.parse(atob(token.split('.')[1]));
     } catch (e) {
       console.error("Erreur lecture token", e);
     }
   }
   const isAdmin = currentUser?.role === "ADMIN";
-
-  // --- 2. CHARGEMENT DES DONNÉES ---
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
     try {
-      // Tout le monde charge les listes
       const dataLists = await ShoppingListService.getAll();
       setLists(dataLists);
-
-      // SEUL l'admin charge les utilisateurs
       if (isAdmin) {
         const dataUsers = await UserService.getAll();
         setUsers(dataUsers);
@@ -41,15 +33,10 @@ export default function ShoppingList() {
       setError("Impossible de charger les données.");
     }
   };
-
-  // --- 3. ACTIONS ---
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
       const newList = await ShoppingListService.create(newTitle);
-      
-      // Astuce : On ajoute manuellement les infos de l'user courant à l'objet liste
-      // pour que l'affichage Admin (Propriétaire : Moi) marche tout de suite sans recharger
       newList.User = { 
         login: currentUser.login || currentUser.username || currentUser.email 
       };
@@ -77,8 +64,6 @@ export default function ShoppingList() {
       const updatedList = await ShoppingListService.update(list.id, {
         status: newStatus,
       });
-
-      // Mise à jour locale en préservant l'objet User s'il n'est pas renvoyé par l'update
       setLists(lists.map((l) => (l.id === list.id ? { ...l, ...updatedList } : l)));
     } catch (e) {
       alert("Erreur mise à jour");
@@ -88,10 +73,6 @@ export default function ShoppingList() {
   return (
     <div style={{ padding: "20px" }}>
       {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {/* ======================================================= */}
-      {/* BLOC RÉSERVÉ AUX ADMINISTRATEURS                        */}
-      {/* ======================================================= */}
       {isAdmin && (
         <div style={{ 
             marginBottom: "40px", 
@@ -135,10 +116,6 @@ export default function ShoppingList() {
           </table>
         </div>
       )}
-
-      {/* ======================================================= */}
-      {/* LISTES DE COURSES                                       */}
-      {/* ======================================================= */}
       <h1> {isAdmin ? "Toutes les listes (Vue Globale)" : "Mes Listes de Courses"}</h1>
 
       <form onSubmit={handleCreate} style={{ marginBottom: "20px" }}>
@@ -177,8 +154,6 @@ export default function ShoppingList() {
               >
                 {list.title}
               </strong>
-
-              {/* ⚠️ AFFICHAGE SPÉCIAL ADMIN : À qui est cette liste ? */}
               {isAdmin && list.User && (
                   <div style={{ color: "blue", fontSize: "0.9em", marginTop: "5px" }}>
                       Propriétaire : <strong>{list.User.login || list.User.username || list.User.email}</strong>

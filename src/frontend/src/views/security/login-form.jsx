@@ -1,8 +1,7 @@
 import { useState } from "react";
 import Button from "../../components/Button";
-import api from "../../services/api"; // On utilise ton instance API configurée
+import api from "../../services/api"; 
 
-// Note: On reçoit 'onLogin' en prop, pas 'setUser'
 export default function LoginForm({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,23 +12,16 @@ export default function LoginForm({ onLogin }) {
     setError(false);
 
     try {
-      // 1. On utilise 'api' (axios) au lieu de 'fetch'
-      // Cela permet d'utiliser la bonne URL de base automatiquement
       const response = await api.post("/login", {
         email: email,
         password: password
       });
-
-      // 2. Axios renvoie la réponse dans .data
       const token = response.data.token;
-
-      // 3. On remonte le token au parent (App.jsx) qui va gérer le localStorage et l'affichage
       if (onLogin) {
         onLogin(token);
       }
       
     } catch (e) {
-      // Si erreur 401 ou autre
       console.error(e);
       setError(true);
     }

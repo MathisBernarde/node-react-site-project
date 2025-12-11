@@ -8,7 +8,7 @@ import ShoppingList from "./views/ShoppingList";
 function App() {
   const [user, setUser] = useState(null);
 
-  // 1. Au chargement : On vérifie si on est déjà connecté
+  // On vérifie si on est déjà connecté
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -28,10 +28,10 @@ function App() {
     }
   };
 
-  // 2. Fonction appelée QUAND on se connecte via le formulaire
+  // Fonction appelée quand on se connecte via le formulaire
   const handleLoginSuccess = (token) => {
-    localStorage.setItem("token", token); // On sauvegarde
-    decodeAndSetUser(token); // On met à jour l'état User pour changer l'écran
+    localStorage.setItem("token", token); // sauvegarde
+    decodeAndSetUser(token); 
   };
 
   const handleLogout = () => {
@@ -43,11 +43,9 @@ function App() {
   return (
     <div className="app-container" style={{ padding: '20px' }}>
       {!user ? (
-        // --- ÉCRAN NON CONNECTÉ ---
         <div style={{ display: 'flex', justifyContent: 'center', gap: '50px' }}>
           <div>
             <h2>Connexion</h2>
-            {/* On passe la fonction handleLoginSuccess au formulaire */}
             <LoginForm onLogin={handleLoginSuccess} />
           </div>
           <div style={{ borderLeft: '1px solid #ccc', paddingLeft: '50px' }}>
@@ -56,7 +54,6 @@ function App() {
           </div>
         </div>
       ) : (
-        // --- ÉCRAN CONNECTÉ ---
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h1>Bonjour {user.username || user.login || "Chef"} !</h1>
@@ -66,8 +63,6 @@ function App() {
           </div>
           
           <hr />
-          
-          {/* Tes composants ici */}
           <ShoppingList />
         </div>
       )}
