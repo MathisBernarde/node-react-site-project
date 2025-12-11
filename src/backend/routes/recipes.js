@@ -4,8 +4,6 @@ const checkAuth = require("../middlewares/check-auth");
 
 const router = Router();
 
-// BESOIN D'UN COMPTE meme pour voir les recettes publiques, need valid accunt
-
 router.get("/recipes", checkAuth, RecipeController.cget);
 router.post("/recipes", checkAuth, RecipeController.create);
 

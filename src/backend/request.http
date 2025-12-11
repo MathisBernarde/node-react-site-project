@@ -6,8 +6,8 @@ POST http://localhost:3000/users
 Content-Type: application/json
 
 {
-    "login": "AdminChef",
-    "email": "admin@test.com",
+    "login": "AAdminChef",
+    "email": "Aadmin@test.com",
     "password": "adminpass",
     "role": "ADMIN"
 }
@@ -44,7 +44,7 @@ POST http://localhost:3000/login
 Content-Type: application/json
 
 {
-    "email": "admin@test.com",
+    "email": "Aadmin@test.com",
     "password": "adminpass"
 }
 
@@ -72,9 +72,9 @@ Content-Type: application/json
 ###----------------
 ### Zone des Tokens
 ###----------------
-@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NjUzOTg3NjAsImV4cCI6MTc2NTQwMjM2MH0.nFvl5fmcNmtHC-LzzrVnkJ4mHttRYCBkuu5SCFlkR1g
-@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTM5ODc4MSwiZXhwIjoxNzY1NDAyMzgxfQ.gg_aUkrgb4kmGSj0STfwt6z1fBichgmw3mVLQDEAdno
-@voleurToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTM5ODc5MywiZXhwIjoxNzY1NDAyMzkzfQ.uX5xt13E9OJVyFKqSwiiYOkHQboeFJN956NnCWXN1eE
+@adminToken - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NjU0NjA4OTMsImV4cCI6MTc2NTQ2NDQ5M30.KV9fovsSmZILCGCiA3DWTttbRwz2hUMBLXa9PtUeUxM
+@userToken - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTQ2MDkwNSwiZXhwIjoxNzY1NDY0NTA1fQ.OOktU7fMETsIU9pWbsPNOY4ZI5gsEseekgnN-SGFKps
+@voleurToken - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTQ2MDkxMywiZXhwIjoxNzY1NDY0NTEzfQ.oS88lB0rFpz5rPEI6qIvuxOzxhVNmOMgCsywO4lUJU4
 
 
 ###----------------------------------------------------------------
@@ -91,7 +91,7 @@ Authorization: Bearer {{userToken}}
     "status": "OPEN"
 }
 
-### 2/ Voir mes listes (Doit afficher la liste "Pizza")
+### 2/ Voir mes listes (Doit afficher la liste "Tartiflette")
 GET http://localhost:3000/shopping-lists
 Authorization: Bearer {{userToken}}
 
@@ -121,7 +121,7 @@ Authorization: Bearer {{voleurToken}}
 
 ### 2/ Le Voleur essaie de modifier la liste n°1 qui ne lui appartient pas
 #Attendu : 403 Forbidden ou 404 Not Found
-PATCH http://localhost:3000/shopping-lists/5
+PATCH http://localhost:3000/shopping-lists/2
 Content-Type: application/json
 Authorization: Bearer {{voleurToken}}
 
@@ -130,7 +130,7 @@ Authorization: Bearer {{voleurToken}}
 }
 
 ###-------------------------------------------------------
-### PARTIE 5 : ADMINISTRATION utilisateur admin uniquement
+### PARTIE 5 : Adminnistration utilisateur admin uniquement
 ###-------------------------------------------------------
 
 ### 1/ Voir tous les utilisateurs inscrits
@@ -140,3 +140,73 @@ Authorization: Bearer {{adminToken}}
 ### 1/ Admin qui voit toutes les listes de courses de tout le monde
 GET http://localhost:3000/shopping-lists
 Authorization: Bearer {{adminToken}}
+
+### -------------------------------
+### PARTIE 6 : Gestion des recettes
+### -------------------------------
+
+### 1/ Créer une Recette privée (USER normal)
+POST http://localhost:3000/recipes
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+    "title": "Pâtes Carbonara Secrètes",
+    "description": "La vraie recette italienne sans crème",
+    "steps": "1. Guanciale. 2. Pecorino. 3. Oeufs. 4. Poivre.",
+    "isPublic": false
+}
+### Attendu : 201 Created
+
+### 2/ Créer une Recette Publique (USER Normal)
+POST http://localhost:3000/recipes
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+    "title": "Omelette simple",
+    "description": "Pour les débutants",
+    "steps": "Casser les oeufs et cuire.",
+    "isPublic": true
+}
+### Attendu : 201 Created
+
+### 3/ Voir toutes les recettes visibles
+# L'utilisateur doit voir : Ses 2 recettes (privée et publique)
+GET http://localhost:3000/recipes
+Authorization: Bearer {{userToken}}
+# Attendu : 200 OK -> Tableau avec les 2 recettes
+
+### 4/ Test d'Isolation (Le Voleur regarde)
+# Le Voleur ne doit voir que la recette "Omelette simple".
+# Il ne doit pas voir "Pâtes Carbonara".
+GET http://localhost:3000/recipes
+Authorization: Bearer {{voleurToken}}
+# Attendu : 200 OK Tableau avec 1 seule recette
+
+### 5/ Modifier une recette -> L'auteur modifie sa recette
+# Remplacez l'ID '1' par l'ID réel de la Carbonara si besoin
+PATCH http://localhost:3000/recipes/1
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+    "title": "Pâtes Carbonara (Meilleures)"
+}
+### Attendu : 200 OK
+
+### 6/ Tentative de piratage (Le Voleur essaie de modifier l'Omelette de l'autre)
+PATCH http://localhost:3000/recipes/2
+Content-Type: application/json
+Authorization: Bearer {{voleurToken}}
+
+{
+    "description": "J'ai ruiné ta recette"
+}
+### Attendu : 403 Forbidden (Il n'est pas l'auteur)
+
+### 7/ Suppression Admin
+# L'admin n'aime pas les carbonara, il supprime la recette ID 1 ne lui appartenant pas
+DELETE http://localhost:3000/recipes/1
+Authorization: Bearer {{adminToken}}
+# Attendu : 204 No Content (L'admin a tous les droits)

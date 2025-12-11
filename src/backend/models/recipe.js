@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const { connection } = require("../lib/db");
+const db = require("../lib/db");
 
 class Recipe extends Model {}
 
@@ -28,7 +28,7 @@ Recipe.init(
     }
   },
   {
-    sequelize: connection,
+    sequelize: db.connection,
     modelName: "Recipe",
     tableName: "recipes",
     underscored: true // cree colonnes created_at + updated_at

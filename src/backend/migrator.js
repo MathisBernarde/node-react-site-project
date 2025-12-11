@@ -1,11 +1,15 @@
 const { getConnection } = require("./lib/db");
 
-const User = require("./models/users");
-const Recipe = require("./models/recipe");
-
 getConnection()
   .then(async (connection) => {
     console.log("Connexion BDD établie pour la migration.");
+    const User = require("./models/users");
+    const ShoppingList = require("./models/shoppingList");
+    const Recipe = require("./models/recipe");
+
+    User.hasMany(ShoppingList, { foreignKey: "userId" });
+    ShoppingList.belongsTo(User, { foreignKey: "userId" });
+
     User.hasMany(Recipe, { as: 'recipes', foreignKey: 'userId' });
     Recipe.belongsTo(User, { as: 'author', foreignKey: 'userId' });
 
