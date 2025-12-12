@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import RecipeService from "../../services/recipe-service";
+import IngredientService from "../../services/ingredient-service";
 
 export default function RecipeForm() {
   const [recipe, setRecipe] = useState({
@@ -9,32 +10,67 @@ export default function RecipeForm() {
     steps: "",
     isPublic: false
   });
+
+  const [availableIngredients, setAvailableIngredients] = useState([]);
+  const [selectedIngredients, setSelectedIngredients] = useState([]);
+  const [currentIngId, setCurrentIngId] = useState("");
+  const [currentQty, setCurrentQty] = useState("");
+  const [currentUnit, setCurrentUnit] = useState("g");
+
   const navigate = useNavigate();
   const { id } = useParams();
 
   useEffect(() => {
-    if (id) {
-      loadRecipe();
-    }
+    loadData();
   }, [id]);
 
-  const loadRecipe = async () => {
+  const loadData = async () => {
     try {
-      const data = await RecipeService.get(id);
-      setRecipe(data);
+        const allIngredients = await IngredientService.getAll();
+        setAvailableIngredients(allIngredients);
+        if(allIngredients.length > 0) setCurrentIngId(allIngredients[0].id);
+        if (id) {
+            const data = await RecipeService.get(id);
+            setRecipe(data);
+            if (data.Ingredients) {
+              const formattedIngredients = data.Ingredients.map(ing => ({
+                id: ing.id,
+                name: ing.name,
+                // La quantité est cachée dans la table de liaison "RecipeIngredient"
+                quantity: ing.RecipeIngredient.quantity,
+                unit: ing.RecipeIngredient.unit || ing.unit
+              }));
+              setSelectedIngredients(formattedIngredients);
+            }
+        }
     } catch (e) {
-      alert("Impossible de charger la recette");
-      navigate("/recipes");
+        console.error(e);
     }
+  };
+
+  const addIngredient = (e) => {
+    e.preventDefault();
+    if(!currentIngId || !currentQty) return;
+    const ingObj = availableIngredients.find(i => i.id == currentIngId);
+    setSelectedIngredients([
+        ...selectedIngredients,
+        { id: currentIngId, name: ingObj.name, quantity: currentQty, unit: currentUnit }
+    ]);
+    setCurrentQty("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const payload = {
+          ...recipe,
+          ingredients: selectedIngredients
+      };
+
       if (id) {
-        await RecipeService.update(id, recipe);
+        await RecipeService.update(id, payload);
       } else {
-        await RecipeService.create(recipe);
+        await RecipeService.create(payload);
       }
       navigate("/recipes");
     } catch (e) {
@@ -45,7 +81,7 @@ export default function RecipeForm() {
   return (
     <div style={{ padding: "20px" }}>
       <h2>{id ? "Modifier la recette" : "Nouvelle recette"}</h2>
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "500px" }}>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "600px" }}>
         
         <input 
           placeholder="Titre (ex: Pâtes carbo)" 
@@ -61,12 +97,41 @@ export default function RecipeForm() {
           onChange={e => setRecipe({...recipe, description: e.target.value})}
           style={{ padding: "8px", height: "60px" }}
         />
+        <div style={{ background: "#f9f9f9", padding: "15px", borderRadius: "8px", border: "1px solid #ddd",color: "black"}}>
+            <h4>Ingrédients de la recette</h4>
+            
+            <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+                <select value={currentIngId} onChange={e => setCurrentIngId(e.target.value)} style={{flex: 1, padding: "5px"}}>
+                    {availableIngredients.map(ing => (
+                        <option key={ing.id} value={ing.id}>{ing.name}</option>
+                    ))}
+                </select>
+                <input 
+                    type="number" placeholder="Qté" style={{width: "60px", padding: "5px"}}
+                    value={currentQty} onChange={e => setCurrentQty(e.target.value)} 
+                />
+                <input 
+                    type="text" placeholder="Unité" style={{width: "60px", padding: "5px"}}
+                    value={currentUnit} onChange={e => setCurrentUnit(e.target.value)} 
+                />
+                <button onClick={addIngredient} type="button" style={{background: "#2196F3", color: "white", border: "none", borderRadius: "4px"}}>
+                    +
+                </button>
+            </div>
+            <ul style={{ margin: 0, paddingLeft: "20px" }}>
+                {selectedIngredients.map((item, index) => (
+                    <li key={index}>
+                        {item.quantity} {item.unit} de <strong>{item.name}</strong>
+                    </li>
+                ))}
+            </ul>
+        </div>
 
         <textarea 
           placeholder="Étapes de préparation..." 
           value={recipe.steps} 
           onChange={e => setRecipe({...recipe, steps: e.target.value})}
-          style={{ padding: "8px", height: "100px" }}
+          style={{ padding: "8px", height: "150px" }}
         />
 
         <label style={{ cursor: "pointer" }}>
@@ -78,8 +143,8 @@ export default function RecipeForm() {
           &nbsp; Rendre cette recette publique ?
         </label>
 
-        <button type="submit" style={{ padding: "10px", background: "#4CAF50", color: "white", border: "none" }}>
-          Sauvegarder
+        <button type="submit" style={{ padding: "12px", background: "#4CAF50", color: "white", border: "none", fontSize: "1.1em", cursor: "pointer" }}>
+          Sauvegarder la recette
         </button>
       </form>
     </div>

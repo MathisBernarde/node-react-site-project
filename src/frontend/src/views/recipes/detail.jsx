@@ -38,6 +38,22 @@ export default function RecipeDetail() {
         <div style={{ marginBottom: "30px", fontStyle: "italic", color: "#555",overflowWrap: "break-word", wordBreak: "break-word" }}>
             "{recipe.description}"
         </div>
+        {recipe.Ingredients && recipe.Ingredients.length > 0 && (
+            <div style={{ marginBottom: "30px", background: "#fffbe6", padding: "20px", borderRadius: "8px", border: "1px solid #ffe58f" }}>
+                <h3 style={{ marginTop: 0, color: "#d48806" }}>Ingrédients</h3>
+                <ul style={{ margin: 0, paddingLeft: "20px" }}>
+                    {recipe.Ingredients.map(ing => (
+                        <li key={ing.id} style={{ color: "#333", marginBottom: "5px" }}>
+                            <span style={{ fontWeight: "bold" }}>
+                                {ing.RecipeIngredient?.quantity} {ing.RecipeIngredient?.unit}
+                            </span>
+                            <span> de {ing.name}</span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        )}
+
         <div>
             <h3 style={{ borderBottom: "1px solid #ddd", paddingBottom: "10px" }}>Préparation</h3>
             <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.6", color: "#333", overflowWrap: "break-word", wordBreak: "break-word" }}>
