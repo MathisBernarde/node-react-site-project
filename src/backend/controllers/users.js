@@ -45,4 +45,19 @@ module.exports = {
     }
     return res.sendStatus(204);
   },
+  update: async (req, res, next) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (req.user.role !== 'ADMIN' && req.user.id !== id) {
+        return res.sendStatus(403); 
+      }
+      if (req.user.role !== 'ADMIN' && req.body.role) {
+        delete req.body.role;
+      }
+      const user = await User.findByPk(id);
+      if (!user) return res.sendStatus(404);
+      await user.update(req.body);
+      res.json(user);
+    } catch (error) { next(error); }
+  },
 };

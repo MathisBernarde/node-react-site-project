@@ -8,6 +8,7 @@ getConnection()
     const Recipe = require("./models/recipe");
     const Ingredient = require("./models/ingredient");
     const RecipeIngredient = require("./models/recipeIngredient");
+    const ShoppingListRecipe = require("./models/shoppingListRecipe");
 
     User.hasMany(ShoppingList, { foreignKey: "userId" });
     ShoppingList.belongsTo(User, { foreignKey: "userId" });
@@ -17,6 +18,9 @@ getConnection()
 
     Recipe.belongsToMany(Ingredient, { through: RecipeIngredient });
     Ingredient.belongsToMany(Recipe, { through: RecipeIngredient });
+
+    ShoppingList.belongsToMany(Recipe, { through: ShoppingListRecipe });
+    Recipe.belongsToMany(ShoppingList, { through: ShoppingListRecipe });
 
     await connection.sync({ alter: true });
     

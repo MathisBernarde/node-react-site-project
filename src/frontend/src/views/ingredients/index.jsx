@@ -35,19 +35,19 @@ export default function IngredientList() {
       <h1>Mes Ingrédients</h1>
       <div style={{ background: "#f5f5f5", padding: "15px", borderRadius: "8px", marginBottom: "20px" }}>
         <h3 style={{color: "black"}}>Ajouter un ingrédient</h3>
-        <form onSubmit={handleCreate} style={{ display: "flex", gap: "10px" }}>
+        <form onSubmit={handleCreate} style={{ display: "flex", gap: "10px"}}>
           <input
             type="text"
             placeholder="Nom (ex: Farine)"
             value={newIngredient.name}
             onChange={(e) => setNewIngredient({ ...newIngredient, name: e.target.value })}
             required
-            style={{ padding: "8px" }}
+            style={{ padding: "8px", paddingRight: "125px"}}
           />
           <select 
             value={newIngredient.unit}
             onChange={(e) => setNewIngredient({ ...newIngredient, unit: e.target.value })}
-            style={{ padding: "8px" }}
+            style={{ padding: "8px"}}
           >
             <option value="g">Grammes (g)</option>
             <option value="kg">Kilos (kg)</option>
@@ -56,7 +56,7 @@ export default function IngredientList() {
             <option value="pièce">Pièce</option>
             <option value="c.à.s">Cuillère à soupe</option>
           </select>
-          <button type="submit" style={{ background: "#4CAF50", color: "white", border: "none", padding: "8px 16px" }}>
+          <button type="submit" style={{ background: "#4CAF50", color: "white", border: "none", padding: "8px 16px", cursor: "pointer" }}>
             Ajouter
           </button>
         </form>

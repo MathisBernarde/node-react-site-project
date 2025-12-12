@@ -2,6 +2,10 @@ import api from "./api";
 const SERVICE_URL = "/shopping-lists";
 
 export default {
+  addRecipe: async (listId, recipeId) => {
+    const response = await api.post(`/shopping-lists/${listId}/add-recipe`, { recipeId });
+    return response.data;
+  },
   // Récupérer toutes les listes
     getAll: async () => {
     const response = await api.get(SERVICE_URL);

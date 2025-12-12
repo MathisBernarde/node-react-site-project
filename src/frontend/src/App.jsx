@@ -8,6 +8,7 @@ import RecipeList from "./views/recipes/index";
 import RecipeForm from "./views/recipes/form";
 import RecipeDetail from "./views/recipes/detail";
 import IngredientList from "./views/ingredients/index";
+import AdminPanel from "./views/admin/index";
 
 import Button from "./components/Button";
 
@@ -51,6 +52,7 @@ function App() {
               <Link to="/shopping-lists" style={{ color: "white", textDecoration: "none", fontWeight: "bold" }}>Courses</Link>
               <Link to="/recipes" style={{ color: "white", textDecoration: "none", fontWeight: "bold" }}>Recettes</Link>
               <Link to="/ingredients" style={{ color: "white", textDecoration: "none", fontWeight: "bold", paddingRight: "14px" }}>Ingrédients</Link>
+              {user.role === "ADMIN" && (<Link to="/admin" style={{ color: "#fbbf24", textDecoration: "none", fontWeight: "bold", marginRight: "20px" }}>Administration</Link>)}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
               <span>Bonjour, {user.login || user.username}</span>
@@ -71,7 +73,6 @@ function App() {
               <Route path="*" element={<Navigate to="/" />} />
             </>
           ) : (
-            /* if connected = acces fonctionnaliter*/
             <>
               <Route path="/" element={<Navigate to="/shopping-lists" />} />
               <Route path="/shopping-lists" element={<ShoppingList />} />
@@ -80,6 +81,7 @@ function App() {
               <Route path="/recipes/:id/edit" element={<RecipeForm />} />
               <Route path="/recipes/:id" element={<RecipeDetail />} />
               <Route path="/ingredients" element={<IngredientList />} />
+              <Route path="/admin" element={user.role === "ADMIN" ? <AdminPanel /> : <Navigate to="/" />} />
             </>
           )}
         </Routes>

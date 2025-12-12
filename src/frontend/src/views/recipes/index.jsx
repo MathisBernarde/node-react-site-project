@@ -37,7 +37,7 @@ export default function RecipeList() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h1>Les Recettes</h1>
         <Link to="/recipes/new" className="button" style={{ background: "#2196F3", color: "white", padding: "10px", textDecoration: "none", borderRadius: "4px" }}>
-          + Créer une recette
+          Créer une recette
         </Link>
       </div>
 

@@ -15,7 +15,7 @@ export default function RecipeForm() {
   const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [currentIngId, setCurrentIngId] = useState("");
   const [currentQty, setCurrentQty] = useState("");
-  const [currentUnit, setCurrentUnit] = useState("g");
+  const [currentUnit, setCurrentUnit] = useState("");
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -28,7 +28,11 @@ export default function RecipeForm() {
     try {
         const allIngredients = await IngredientService.getAll();
         setAvailableIngredients(allIngredients);
-        if(allIngredients.length > 0) setCurrentIngId(allIngredients[0].id);
+        if(allIngredients.length > 0) {
+            setCurrentIngId(allIngredients[0].id);
+            setCurrentUnit(allIngredients[0].unit);
+        }
+
         if (id) {
             const data = await RecipeService.get(id);
             setRecipe(data);
@@ -56,6 +60,14 @@ export default function RecipeForm() {
         { id: currentIngId, name: ingObj.name, quantity: currentQty, unit: currentUnit }
     ]);
     setCurrentQty("");
+  };
+  const handleIngredientChange = (e) => {
+    const selectedId = e.target.value;
+    setCurrentIngId(selectedId);
+    const ing = availableIngredients.find(i => i.id == selectedId);
+    if (ing) {
+        setCurrentUnit(ing.unit);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -96,28 +108,50 @@ export default function RecipeForm() {
           onChange={e => setRecipe({...recipe, description: e.target.value})}
           style={{ padding: "8px", height: "60px" }}
         />
-        <div style={{ background: "#f9f9f9", padding: "15px", borderRadius: "8px", border: "1px solid #ddd",color: "black"}}>
+        
+        <div style={{ background: "#f9f9f9", padding: "15px", borderRadius: "8px", border: "1px solid #ddd", color: "black"}}>
             <h4>Ingrédients de la recette</h4>
             
-            <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-                <select value={currentIngId} onChange={e => setCurrentIngId(e.target.value)} style={{flex: 1, padding: "5px"}}>
+            <div style={{ display: "flex", gap: "10px", marginBottom: "10px"}}>
+                {/* SELECT MODIFIÉ */}
+                <select 
+                    value={currentIngId} 
+                    onChange={handleIngredientChange} // <--- Appel de la nouvelle fonction
+                    style={{flex: 1, padding: "5px"}}
+                >
                     {availableIngredients.map(ing => (
                         <option key={ing.id} value={ing.id}>{ing.name}</option>
                     ))}
                 </select>
+
                 <input 
                     type="number" placeholder="Qté" style={{width: "60px", padding: "5px"}}
                     value={currentQty} onChange={e => setCurrentQty(e.target.value)} 
                 />
+
+                {/* INPUT UNITÉ BLOQUÉ */}
                 <input 
-                    type="text" placeholder="Unité" style={{width: "60px", padding: "5px"}}
-                    value={currentUnit} onChange={e => setCurrentUnit(e.target.value)} 
+                    type="text" 
+                    placeholder="Unité" 
+                    value={currentUnit} 
+                    readOnly // <--- Empêche l'écriture
+                    disabled // <--- Grise le champ
+                    style={{
+                        width: "60px", 
+                        padding: "5px",
+                        backgroundColor: "#e9ecef", // Fond gris
+                        color: "#6c757d",           // Texte gris foncé
+                        cursor: "not-allowed",
+                        border: "1px solid #ccc"
+                    }} 
                 />
-                <button onClick={addIngredient} type="button" style={{background: "#2196F3", color: "white", border: "none", borderRadius: "4px"}}>
-                    +
+
+                <button onClick={addIngredient} type="button" style={{background: "#2196F3", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", padding: "0 10px"}}>
+                    Ajouter
                 </button>
             </div>
-            <ul style={{ margin: 0, paddingLeft: "20px" }}>
+            
+            <ul style={{ margin: 0, paddingLeft: "0px", listStylePosition: "inside"}}>
                 {selectedIngredients.map((item, index) => (
                     <li key={index}>
                         {item.quantity} {item.unit} de <strong>{item.name}</strong>
