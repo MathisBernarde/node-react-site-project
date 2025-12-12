@@ -1,12 +1,8 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
-import Button from "./components/Button";
-import RegisterForm from "./views/security/register-form";
-import LoginForm from "./views/security/login-form";
-import CategoryList from "./views/categories";
+
+import AuthPage from "./views/security/AuthPage";
 import RecipesList from "./views/recipes/index";
 import RecipeForm from "./views/recipes/form";
 
@@ -21,7 +17,6 @@ function App() {
         const userDecoded = JSON.parse(atob(payloadEncoded));
         setUser(userDecoded);
       } catch (e) {
-        console.error("Token invalide", e);
         localStorage.removeItem("token");
       }
     }
@@ -30,64 +25,72 @@ function App() {
   function handleLogout() {
     localStorage.removeItem("token");
     setUser(null);
-    window.location.href = "/"; // accueil
+    window.location.href = "/";
   }
 
   return (
     <BrowserRouter>
-      <div className="App">
-        {/* NAVBAR */}
-        <nav style={{ padding: "20px", borderBottom: "1px solid #ccc", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <Link to="/" style={{ marginRight: "15px", fontWeight: "bold" }}>Accueil</Link>
-            {user && (
-              <>
-                <Link to="/categories" style={{ marginRight: "15px" }}>Catégories</Link>
-                <Link to="/recipes" style={{ marginRight: "15px" }}>Recettes</Link>
-              </>
-            )}
-          </div>
-          <div>
-            {user ? (
-              <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                Bonjour, {user.username || user.email}
-                <Button variant="delete" title="Déconnexion" onClick={handleLogout} />
-              </span>
-            ) : (
-              <Link to="/login">Se connecter</Link>
-            )}
-          </div>
-        </nav>
-
-        {/* LOGOS */}
-        <div style={{ textAlign: "center" }}>
-          <a href="https://vite.dev" target="_blank">
-            <img src={viteLogo} className="logo" alt="Vite logo" />
-          </a>
-          <a href="https://react.dev" target="_blank">
-            <img src={reactLogo} className="logo react" alt="React logo" />
-          </a>
+      <nav>
+        <Link to="/">APP CUISINE</Link>
+        <div>
+          {user ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+              <span style={{ fontSize: "0.9rem", color: "#666" }}>{user.email}</span>
+              <button onClick={handleLogout} className="btn-logout">Déconnexion</button>
+            </div>
+          ) : (
+            <Link to="/auth"><button className="btn-nav">Connexion</button></Link>
+          )}
         </div>
+      </nav>
 
-        {/* GESTION DES ROUTES */}
+      <div className="main-wrapper">
         <Routes>
-          {/* Route d'accueil */}
+          
           <Route path="/" element={
-            <div style={{ textAlign: "center" }}>
-              <h1>Bienvenue sur l'App Recettes</h1>
-              {!user && <p>Connectez-vous pour gérer vos recettes !</p>}
+            <div style={{ textAlign: "center", marginTop: "100px" }}>
+              <h1 style={{ fontSize: "2.5rem", marginBottom: "20px", color: "var(--secondary)" }}>Gérez vos recettes simplement.</h1>
+              {!user ? (
+                <Link to="/auth"><button className="btn-nav" style={{ padding: "15px 40px", fontSize: "1.1rem" }}>Commencer maintenant</button></Link>
+              ) : (
+                <Link to="/recipes"><button className="btn-nav" style={{ background: "var(--success)", padding: "15px 40px" }}>Mes Recettes</button></Link>
+              )}
             </div>
           } />
 
-          {/* Routes Auth */}
-          <Route path="/login" element={!user ? <LoginForm setUser={setUser} /> : <Navigate to="/recipes" />} />
-          <Route path="/register" element={!user ? <RegisterForm /> : <Navigate to="/recipes" />} />
+          <Route path="/auth" element={
+            !user ? (
+              <div className="auth-wrapper">
+                <AuthPage setUser={setUser} />
+              </div>
+            ) : <Navigate to="/recipes" />
+          } />
+        
+          <Route path="/recipes" element={
+            user ? (
+              <div className="content-container">
+                <RecipesList />
+              </div>
+            ) : <Navigate to="/auth" />
+          } />
+          
+          <Route path="/recipes/new" element={
+            user ? (
+              <div className="content-container">
+                <RecipeForm />
+              </div>
+            ) : <Navigate to="/auth" />
+          } />
+          
+          <Route path="/recipes/:id/edit" element={
+            user ? (
+              <div className="content-container">
+                <RecipeForm />
+              </div>
+            ) : <Navigate to="/auth" />
+          } />
 
-          {/* Routes Catégories */}
-          <Route path="/categories" element={user ? <CategoryList /> : <Navigate to="/login" />} />
-          <Route path="/recipes" element={user ? <RecipesList /> : <Navigate to="/login" />} />
-          <Route path="/recipes/new" element={user ? <RecipeForm /> : <Navigate to="/login" />} />
-          <Route path="/recipes/:id/edit" element={user ? <RecipeForm /> : <Navigate to="/login" />} />
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
     </BrowserRouter>

@@ -1,42 +1,48 @@
 const Recipe = require("../models/recipe");
-const User = require("../models/users"); // used to showuser name
-const { Op } = require("sequelize"); // conditions OU
+const User = require("../models/users");
+const { Op } = require("sequelize");
 
 module.exports = {
+  // GET
   cget: async (req, res, next) => {
     try {
-      // Si adm = see all
-      if (req.user.role === 'ADMIN') {
-        const recipes = await Recipe.findAll();
-        return res.json(recipes);
+      let whereClause = {};
+
+      // Si l'utilisateur n'est PAS admin, on filtre
+      if (req.user.role !== 'ADMIN') {
+        whereClause = {
+          [Op.or]: [
+            { userId: req.user.id }, // mes recettes
+            { isPublic: true }       // les recettes publiques
+          ]
+        };
       }
 
-      // Si user = vois ces recette ou les bublique
       const recipes = await Recipe.findAll({
-        where: {
-          [Op.or]: [
-            { userId: req.user.id }, // c'est à moi
-            { isPublic: true }       // c'est public
-          ]
-        },
-        include: [{ 
-            model: User, 
-            as: 'author', 
-            attributes: ['email']
-        }]
+        where: whereClause,
+        include: [
+          {
+            model: User,
+            as: 'author',
+            attributes: ['id', 'email', 'username']
+          }
+        ],
+        order: [['createdAt', 'DESC']] // les recents en premier
       });
+
       res.json(recipes);
     } catch (error) {
+      console.error("Erreur récupération recettes:", error);
       next(error);
     }
   },
 
-  // cree recettes
+  // POST
   create: async (req, res, next) => {
     try {
       const recipe = await Recipe.create({
         ...req.body,
-        userId: req.user.id
+        userId: req.user.id // On force l'auteur a etre celui du token
       });
       res.status(201).json(recipe);
     } catch (error) {
@@ -44,31 +50,41 @@ module.exports = {
     }
   },
 
-  // see une seule recette
+  // GET
   get: async (req, res, next) => {
     try {
-      const recipe = await Recipe.findByPk(req.params.id);
+      const recipe = await Recipe.findByPk(req.params.id, {
+        include: [{ 
+            model: User, 
+            as: 'author', 
+            attributes: ['id', 'email', 'username'] 
+        }]
+      });
+
       if (!recipe) return res.sendStatus(404);
 
-      // VERIF : if adm OU Auteur OU Recette publique = OK
-      if (req.user.role === 'ADMIN' || recipe.userId === req.user.id || recipe.isPublic) {
-        return res.json(recipe);
+      // Vérification droits lecture
+      const isAdmin = req.user.role === 'ADMIN';
+      const isAuthor = recipe.userId === req.user.id;
+      const isPublic = recipe.isPublic;
+
+      if (!isAdmin && !isAuthor && !isPublic) {
+        return res.sendStatus(403); // Interdit
       }
-      
-      // else : nop
-      return res.sendStatus(403);
+
+      res.json(recipe);
     } catch (error) {
       next(error);
     }
   },
 
-  // modifier
+  // PATCH
   update: async (req, res, next) => {
     try {
       const recipe = await Recipe.findByPk(req.params.id);
       if (!recipe) return res.sendStatus(404);
 
-      // SECU : seul adm ou le propriétaire peut modifier
+      // Seul l'auteur ou l'admin peut modifier
       if (req.user.role !== 'ADMIN' && recipe.userId !== req.user.id) {
         return res.sendStatus(403);
       }
@@ -80,13 +96,13 @@ module.exports = {
     }
   },
 
-  // supprimer
+  // DELETE
   delete: async (req, res, next) => {
     try {
       const recipe = await Recipe.findByPk(req.params.id);
       if (!recipe) return res.sendStatus(404);
 
-      // SECU : Seul l'Admin ou le Propriétaire peut supprimer
+      // Seul l'auteur ou l'admin peut supprimer
       if (req.user.role !== 'ADMIN' && recipe.userId !== req.user.id) {
         return res.sendStatus(403);
       }

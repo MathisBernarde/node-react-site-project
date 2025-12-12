@@ -1,39 +1,25 @@
 import api from "./api";
 
-// bring all recettes
 export const getRecipes = async () => {
-  const response = await api("/recipes");
-  return await response.json();
+  const response = await api.get("/recipes");
+  return response.data;
 };
 
-// bring une seule recette
 export const getRecipe = async (id) => {
-  const response = await api(`/recipes/${id}`);
-  return await response.json();
+  const response = await api.get(`/recipes/${id}`);
+  return response.data;
 };
 
-// creer une recette
-export const createRecipe = async (recipe) => {
-  const response = await api("/recipes", {
-    method: "POST",
-    body: recipe,
-  });
-  if (!response.ok) throw new Error("Erreur lors de la création");
-  return await response.json();
+export const createRecipe = async (recipeData) => {
+  const response = await api.post("/recipes", recipeData);
+  return response.data;
 };
 
-// modifier une recette
-export const updateRecipe = async (id, recipe) => {
-  const response = await api(`/recipes/${id}`, {
-    method: "PATCH",
-    body: recipe,
-  });
-  return await response.json();
+export const updateRecipe = async (id, recipeData) => {
+  const response = await api.patch(`/recipes/${id}`, recipeData);
+  return response.data;
 };
 
-// delet une recette
 export const deleteRecipe = async (id) => {
-  return await api(`/recipes/${id}`, {
-    method: "DELETE",
-  });
+  return await api.delete(`/recipes/${id}`);
 };

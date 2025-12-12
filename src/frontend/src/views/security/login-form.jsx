@@ -1,44 +1,79 @@
 import { useState } from "react";
-import Button from "../../components/Button";
+import api from "../../services/api"; // axios
+import { useNavigate } from "react-router-dom";
 
 export default function LoginForm({ setUser }) {
-  const [invalidCredentials, setInvalidCredentials] = useState(false);
-  async function handleSubmit(event) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const values = {
-      email: form.email.value,
-      password: form.password.value,
-    };
-    const response = await fetch("http://localhost:3000/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-    if (response.status === 401) {
-      setInvalidCredentials(true);
-    } else {
-      setInvalidCredentials(false);
-      const content = await response.json();
-      const token = content.token;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const response = await api.post("/login", { email, password });
+      
+      // stock token
+      const token = response.data.token;
       localStorage.setItem("token", token);
+      
       const [, payloadEncoded] = token.split(".");
-      const payload = JSON.parse(atob(payloadEncoded));
-      setUser(payload);
+      const userDecoded = JSON.parse(atob(payloadEncoded));
+      
+      setUser(userDecoded);
+      navigate("/recipes");
+    } catch (e) {
+      console.error(e);
+      setError("Email ou mot de passe incorrect.");
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {invalidCredentials && <p style={{ color: "red" }}>invalidCredentials</p>}
-      <label>Email</label>
-      <input name="email" type="email" />
-      <label>Password</label>
-      <input name="password" type="password" />
-      <Button component="input" type="submit" title="Se connecter" />
-    </form>
+    <div className="auth-container">
+      <h2>Connexion</h2>
+      
+      <form onSubmit={handleSubmit}>
+        
+        {/* Groupe Email */}
+        <div className="form-group">
+          <div className="input-group">
+            <span className="icon">📧</span>
+            <input
+              type="email"
+              placeholder="Votre email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+        </div>
+
+        {/* Groupe Password */}
+        <div className="form-group">
+          <div className="input-group">
+            <span className="icon">🔒</span>
+            <input
+              type="password"
+              placeholder="Votre mot de passe"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+        </div>
+
+        {error && <div style={{color: 'var(--danger)', marginBottom: '15px'}}>{error}</div>}
+
+        <button type="submit">
+          Se connecter
+        </button>
+      </form>
+      
+      <p style={{marginTop: '20px', fontSize: '0.9rem', color: '#888'}}>
+        Pas encore de compte ? <a href="/register" style={{color: '#007aff'}}>Créer un compte</a>
+      </p>
+    </div>
   );
 }
