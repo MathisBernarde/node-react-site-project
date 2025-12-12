@@ -167,13 +167,13 @@ export default function ShoppingList() {
 
             <div>
               <button onClick={() => toggleStatus(list)} style={{ marginRight: "5px" }}>
-                {list.status === "OPEN" ? "Terminer" : "↩️ Rouvrir"}
+                {list.status === "OPEN" ? "Terminer" : "Rouvrir"}
               </button>
               <button
                 onClick={() => handleDelete(list.id)}
                 style={{ background: "red", color: "white" }}
               >
-                🗑️
+                Supprimer
               </button>
             </div>
           </div>

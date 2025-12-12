@@ -30,7 +30,7 @@ module.exports = {
         
         // Génération du token
         const token = jwt.sign(
-            { user_id: user.id, role: user.role, name: user.name }, // Payload
+            { user_id: user.id, role: user.role, name: user.name, login: user.login }, // Payload
             process.env.JWT_SECRET, // Secret
             { expiresIn: '1h' }
         );
