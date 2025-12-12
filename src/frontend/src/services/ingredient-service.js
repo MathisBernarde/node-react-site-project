@@ -17,8 +17,6 @@ export default {
     const response = await api.put(`${SERVICE_URL}/${id}`, data);
     return response.data;
   },
-  
-  // (Optionnel si vous avez ajoutÃ© le delete dans le backend)
   delete: async (id) => {
      await api.delete(`${SERVICE_URL}/${id}`);
   }

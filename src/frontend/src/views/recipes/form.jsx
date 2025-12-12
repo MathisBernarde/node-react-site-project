@@ -36,7 +36,6 @@ export default function RecipeForm() {
               const formattedIngredients = data.Ingredients.map(ing => ({
                 id: ing.id,
                 name: ing.name,
-                // La quantité est cachée dans la table de liaison "RecipeIngredient"
                 quantity: ing.RecipeIngredient.quantity,
                 unit: ing.RecipeIngredient.unit || ing.unit
               }));

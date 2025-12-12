@@ -82,7 +82,7 @@ export default function ShoppingList() {
             backgroundColor: "#000000" 
         }}>
           <h2 style={{ marginTop: 0}}>Espace Administrateur</h2>
-          <p>Vous avez accès à la liste complète des utilisateurs.</p>
+          <p>Liste des utilisateurs.</p>
           
           <table border="1" cellPadding="8" style={{ width: "100%", borderCollapse: "collapse", background: "white", color: "black" }}>
             <thead style={{ background: "#ddd" }}>
@@ -116,7 +116,7 @@ export default function ShoppingList() {
           </table>
         </div>
       )}
-      <h1> {isAdmin ? "Toutes les listes (Vue Globale)" : "Mes Listes de Courses"}</h1>
+      <h1> {isAdmin ? "Toutes les listes de courses" : "Mes Listes de Courses"}</h1>
 
       <form onSubmit={handleCreate} style={{ marginBottom: "20px" }}>
         <input
