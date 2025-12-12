@@ -14,22 +14,29 @@ getConnection().then(() => {
     const User = require("./models/users");
     const ShoppingList = require("./models/shoppingList");
     const Recipe = require("./models/recipe");
+    const Ingredient = require("./models/ingredient");
+    const RecipeIngredient = require("./models/recipeIngredient");
 
     User.hasMany(ShoppingList, { foreignKey: 'userId' });
     ShoppingList.belongsTo(User, { foreignKey: 'userId' });
 
     User.hasMany(Recipe, { foreignKey: "userId" });
     Recipe.belongsTo(User, { as: 'author', foreignKey: "userId" });
+
+    Recipe.belongsToMany(Ingredient, { through: RecipeIngredient });
+    Ingredient.belongsToMany(Recipe, { through: RecipeIngredient });
     
     const userRouter = require("./routes/users");
     const securityRouter = require("./routes/security");
     const shoppingListRouter = require("./routes/shoppingList");
     const recipe = require("./routes/recipes");
+    const ingredient = require("./routes/ingredient")
 
     app.use(userRouter);
     app.use(securityRouter);
     app.use(shoppingListRouter);
     app.use(recipe);
+    app.use(ingredient);
     app.listen(3000, () => {
         console.log("Server listening on port 3000");
     });

@@ -1,10 +1,26 @@
 const Recipe = require("../models/recipe");
 const User = require("../models/users"); // used to showuser name
+const Ingredient = require("../models/ingredient");
+const RecipeIngredient = require("../models/recipeIngredient");
 const { Op } = require("sequelize"); // conditions OU
 
 module.exports = {
   cget: async (req, res, next) => {
     try {
+      const options = {
+        include: [
+            { 
+              model: User, 
+              as: 'author', 
+              attributes: ['login', 'email']
+            },
+            // 👇 ON INCLUT LES INGRÉDIENTS
+            { 
+              model: Ingredient, 
+              through: { attributes: ['quantity', 'unit'] } 
+            }
+        ]
+      };
       // Si adm = see all
       if (req.user.role === 'ADMIN') {
         const recipes = await Recipe.findAll();
@@ -38,6 +54,13 @@ module.exports = {
         ...req.body,
         userId: req.user.id
       });
+      if (req.body.ingredients && req.body.ingredients.length > 0) {
+        for (const item of req.body.ingredients) {
+            await recipe.addIngredient(item.id, { 
+                through: { quantity: item.quantity, unit: item.unit } 
+            });
+        }
+      }
       res.status(201).json(recipe);
     } catch (error) {
       next(error);
@@ -47,7 +70,12 @@ module.exports = {
   // see une seule recette
   get: async (req, res, next) => {
     try {
-      const recipe = await Recipe.findByPk(req.params.id);
+      const recipe = await Recipe.findByPk(req.params.id, {
+        include: [
+            { model: User, as: 'author', attributes: ['login'] },
+            { model: Ingredient, through: { attributes: ['quantity', 'unit'] } }
+        ]
+      });
       if (!recipe) return res.sendStatus(404);
 
       // VERIF : if adm OU Auteur OU Recette publique = OK
@@ -63,18 +91,43 @@ module.exports = {
   },
 
   // modifier
+  // modifier
   update: async (req, res, next) => {
     try {
       const recipe = await Recipe.findByPk(req.params.id);
       if (!recipe) return res.sendStatus(404);
 
-      // SECU : seul adm ou le propriétaire peut modifier
+      // SECU
       if (req.user.role !== 'ADMIN' && recipe.userId !== req.user.id) {
         return res.sendStatus(403);
       }
 
+      // 1. Mise à jour des textes (Titre, description...)
       await recipe.update(req.body);
-      res.json(recipe);
+
+      // 2. Mise à jour des ingrédients (Le plus important !)
+      if (req.body.ingredients) {
+        // Étape A : On enlève tous les anciens ingrédients de cette recette
+        // (Cela vide la table de liaison pour cette recette)
+        await recipe.setIngredients([]); 
+
+        // Étape B : On remet les nouveaux (comme dans le Create)
+        for (const item of req.body.ingredients) {
+            await recipe.addIngredient(item.id, { 
+                through: { quantity: item.quantity, unit: item.unit } 
+            });
+        }
+      }
+
+      // 3. On renvoie la recette fraîchement mise à jour
+      const updatedRecipe = await Recipe.findByPk(recipe.id, {
+          include: [
+            { model: User, as: 'author', attributes: ['login'] },
+            { model: Ingredient, through: { attributes: ['quantity', 'unit'] } }
+          ]
+      });
+
+      res.json(updatedRecipe);
     } catch (error) {
       next(error);
     }

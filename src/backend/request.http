@@ -72,9 +72,9 @@ Content-Type: application/json
 ###----------------
 ### Zone des Tokens
 ###----------------
-@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NjU0NjI5MjcsImV4cCI6MTc2NTQ2NjUyN30.tENWpKC7Up_x4DLvyCCd9zdJHL0WKz4cL1pOutUlggs
-@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTQ2Mjk0MiwiZXhwIjoxNzY1NDY2NTQyfQ.sZODrMsKeEKlWUXEvM8SUAdaezDuRVeHT1Y5rpm3AQg
-@voleurToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTQ2Mjk1NCwiZXhwIjoxNzY1NDY2NTU0fQ.XjxLxRhsg52i9jdURh3RKjSat3ncurLPMo4v-kFjwRI
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiQURNSU4iLCJsb2dpbiI6IkFBZG1pbkNoZWYiLCJpYXQiOjE3NjU1NDI4MDksImV4cCI6MTc2NTU0NjQwOX0.ohNWUC8OlsOf7yu8BOS0aN_VEJUgh_khpiUjqPgA324
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJyb2xlIjoiVVNFUiIsImxvZ2luIjoiVXRpbGlzYXRldXIiLCJpYXQiOjE3NjU1NDI4MjIsImV4cCI6MTc2NTU0NjQyMn0.Me50FYiyPSpMhjqtyVTpqXxjmIRJw_tG3Iy7AIgQ57A
+@voleurToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiVVNFUiIsImxvZ2luIjoiVm9sZXVyIiwiaWF0IjoxNzY1NTQyODMwLCJleHAiOjE3NjU1NDY0MzB9.8VAdw57G-NZLgl7z8tPP0b6maNEEfVZeqwvJfRQsNhU
 
 
 ###----------------------------------------------------------------
@@ -210,3 +210,56 @@ Authorization: Bearer {{voleurToken}}
 DELETE http://localhost:3000/recipes/1
 Authorization: Bearer {{adminToken}}
 # Attendu : 204 No Content (L'admin a tous les droits)
+
+### ==============================================================================
+### PARTIE 7 : GESTION DES INGRÉDIENTS (Travail Personne C)
+### ==============================================================================
+
+### 1. Voir la liste des ingrédients (Doit être vide au début)
+GET http://localhost:3000/ingredients
+Content-Type: application/json
+# Si vous avez protégé la route, gardez le token, sinon il est ignoré
+Authorization: Bearer {{userToken}}
+
+### 2. Créer un premier ingrédient : Farine
+POST http://localhost:3000/ingredients
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+    "name": "Farine de Blé",
+    "unit": "g"
+}
+### Attendu : 201 Created
+
+### 3. Créer un deuxième ingrédient : Oeufs
+POST http://localhost:3000/ingredients
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+    "name": "Oeufs Bio",
+    "unit": "pièce"
+}
+
+### 4. Créer un troisième ingrédient : Lait
+POST http://localhost:3000/ingredients
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+    "name": "Lait entier",
+    "unit": "ml"
+}
+
+### 5. Modifier un ingrédient (Ex: Changer "Farine de Blé" en "Farine T55")
+# Remplacez '1' par l'ID de la farine si ce n'est pas 1
+PUT http://localhost:3000/ingredients/1
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+    "name": "Farine T55",
+    "unit": "kg"
+}
+### Attendu : 200 OK
