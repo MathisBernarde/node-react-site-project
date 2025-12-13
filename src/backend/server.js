@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
-    res.send("Bonjour ! L'API est en ligne et fonctionnelle(à peu près).");
+    res.send("API online et fonctionnelle.");
 });
 getConnection().then(() => {
     console.log("Database connected via Server");
