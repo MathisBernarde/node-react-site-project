@@ -6,24 +6,22 @@ Tout est conteneurisé avec Docker pour que ce soit facile à lancer sur n'impor
 
 ## Répartition des tâches
 
-* **Personne A - Architecte et Listes :**
+* **Personne A - Théo - Architecte et Listes :**
     * Mise en place du serveur (Node.js) et de la base de données.
     * Système d'inscription et de connexion (Sécurité, Tokens JWT).
     * Gestion des **Listes de courses** (Ajout, suppression, "cocher" les items).
     * Structure du Frontend (React + Vite).
 
-* **Personne B - Les Recettes :**
+* **Personne B - Mathis - Les Recettes :**
     * Création des fiches recettes (Titre, étapes, description).
     * Gestion de la visibilité : Recettes privées (pour soi) ou publiques (visibles par tous).
     * Liaison entre les recettes et les utilisateurs.
     * Structure du Frontend (React + Vite).
 
-* **Personne C - Ingrédients & Catégories :**
+* **Personne C - Yassine - Ingrédients & Catégories :**
     * Gestion des **ingrédients**.
     * Classement par **Catégories**.
     * Permet de savoir de quels aliments on dispose.
-
-## Notre Stack Technique
 
 On est parti sur du **JavaScript Fullstack** :
 * **Backend :** Node.js avec Express (API) + Sequelize.
@@ -35,7 +33,7 @@ On est parti sur du **JavaScript Fullstack** :
 
 ## Comment lancer le projet ?
 
-Il suffit d'avoir Docker installé.
+Il suffit d'avoir Docker installé. Vous n'avez pas besoin d'installer Node ou Postgres sur votre machine.
 
 ### 1. Démarrer le serveurs (dans le dossier "src")
 **Ouvre ton terminal à la racine du dossier et lance :**
@@ -54,3 +52,8 @@ docker compose up --build
 
 **Recree les tables (dans un autre terminal) :**
 docker compose exec backend node migrator.js
+
+### 2. Accéder à l'application
+Site Web : http://localhost:5173
+
+API Backend : http://localhost:3000
